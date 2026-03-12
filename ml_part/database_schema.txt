@@ -1,0 +1,184 @@
+================================================================================
+BAZA DANNYKH: aura (PostgreSQL)
+================================================================================
+
+--------------------------------------------------------------------------------
+TABLICA: ai_prompts_settings
+--------------------------------------------------------------------------------
+
+Kolonki:
+  - user_id : integer (nullable: NO)
+  - words_for_prompt : text (nullable: YES)
+
+Kolichestvo strok: 1
+
+Primer dannykh (do 3 strok):
+  [1] 
+      user_id: 1
+      words_for_prompt: 'лидерство, сон'
+
+--------------------------------------------------------------------------------
+TABLICA: refresh_sessions
+--------------------------------------------------------------------------------
+
+Kolonki:
+  - id : bigint (nullable: NO)
+  - user_id : bigint (nullable: NO)
+  - refresh_token : text (nullable: NO)
+  - user_agent : text (nullable: YES)
+  - fingerprint : text (nullable: YES)
+  - expires_at : timestamp with time zone (nullable: NO)
+  - created_at : timestamp with time zone (nullable: NO)
+
+Kolichestvo strok: 49
+
+Primer dannykh (do 3 strok):
+  [1] 
+      id: 1
+      user_id: 1
+      refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAyMzM2MjMsImlhdCI6MTc2OTYyODg'...
+      user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik'...
+      fingerprint: ''
+      expires_at: datetime.datetime(2026, 2, 4, 19, 33, 43, 871177, tzinfo=datetime.timezone.utc)
+      created_at: datetime.datetime(2026, 1, 28, 19, 33, 43, 872970, tzinfo=datetime.timezone.utc)
+  [2] 
+      id: 2
+      user_id: 1
+      refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAyMzQ4OTIsImlhdCI6MTc2OTYzMDA'...
+      user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik'...
+      fingerprint: ''
+      expires_at: datetime.datetime(2026, 2, 4, 19, 54, 52, 960213, tzinfo=datetime.timezone.utc)
+      created_at: datetime.datetime(2026, 1, 28, 19, 54, 52, 960388, tzinfo=datetime.timezone.utc)
+  [3] 
+      id: 3
+      user_id: 1
+      refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzAyMzc0OTAsImlhdCI6MTc2OTYzMjY'...
+      user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik'...
+      fingerprint: ''
+      expires_at: datetime.datetime(2026, 2, 4, 20, 38, 10, 678406, tzinfo=datetime.timezone.utc)
+      created_at: datetime.datetime(2026, 1, 28, 20, 38, 10, 680902, tzinfo=datetime.timezone.utc)
+
+--------------------------------------------------------------------------------
+TABLICA: reports_history
+--------------------------------------------------------------------------------
+
+Kolonki:
+  - report_id : integer (nullable: NO)
+  - user_id : integer (nullable: NO)
+  - log_datetime : timestamp without time zone (nullable: YES)
+  - report : text (nullable: NO)
+  - date_from : timestamp without time zone (nullable: YES)
+  - date_to : timestamp without time zone (nullable: YES)
+
+Kolichestvo strok: 1
+
+Primer dannykh (do 3 strok):
+  [1] 
+      report_id: 10
+      user_id: 1
+      log_datetime: datetime.datetime(2026, 2, 12, 14, 14, 53, 901483)
+      report: '# 1️⃣ Карта внутреннего опыта\n\n## Общая суть\nМысли пользователя сработают в круг'...
+
+Primer dannykh: (oshibka: 'charmap' codec can't encode characters in position 18-19: character maps to <undefined>)
+
+--------------------------------------------------------------------------------
+TABLICA: thoughts
+--------------------------------------------------------------------------------
+
+Kolonki:
+  - thought_id : bigint (nullable: NO)
+  - user_id : integer (nullable: NO)
+  - created_at : timestamp without time zone (nullable: YES)
+  - content : text (nullable: YES)
+  - voice_text : text (nullable: YES)
+  - sentiment_label : character varying (nullable: YES)
+  - sentiment_score : numeric (nullable: YES)
+  - minio_id : text (nullable: YES)
+  - type_thought : character varying (nullable: YES)
+  - mind_score : double precision (nullable: YES)
+
+Kolichestvo strok: 39
+
+Primer dannykh (do 3 strok):
+  [1] 
+      thought_id: 1
+      user_id: 1
+      created_at: datetime.datetime(2026, 1, 28, 22, 55, 7, 375078)
+      content: 'Моя первая запись'
+      voice_text: NULL
+      sentiment_label: NULL
+      sentiment_score: NULL
+      minio_id: NULL
+      type_thought: NULL
+      mind_score: NULL
+  [2] 
+      thought_id: 2
+      user_id: 1
+      created_at: datetime.datetime(2026, 1, 28, 23, 38, 25, 398143)
+      content: 'Отдых'
+      voice_text: NULL
+      sentiment_label: NULL
+      sentiment_score: NULL
+      minio_id: NULL
+      type_thought: NULL
+      mind_score: NULL
+  [3] 
+      thought_id: 3
+      user_id: 1
+      created_at: datetime.datetime(2026, 1, 28, 23, 41, 40, 902103)
+      content: 'Итрот'
+      voice_text: NULL
+      sentiment_label: NULL
+      sentiment_score: NULL
+      minio_id: NULL
+      type_thought: NULL
+      mind_score: NULL
+
+--------------------------------------------------------------------------------
+TABLICA: users
+--------------------------------------------------------------------------------
+
+Kolonki:
+  - user_id : integer (nullable: NO)
+  - username : character varying (nullable: NO)
+  - email : character varying (nullable: NO)
+  - password : character varying (nullable: NO)
+  - created_at : timestamp without time zone (nullable: YES)
+  - google_sub : character varying (nullable: YES)
+  - auth_provider : character varying (nullable: YES)
+  - avatar_url : text (nullable: YES)
+
+Kolichestvo strok: 6
+
+Primer dannykh (do 3 strok):
+  [1] 
+      user_id: 1
+      username: 'Tima'
+      email: 'Tima@aura.local'
+      password: '$2a$10$jurkYO4E1jlE5sCZeVm3x.LQZKBKevE7niKdPQ.XPrNI17Z9O4IQO'
+      created_at: datetime.datetime(2026, 1, 28, 19, 33, 43, 20896)
+      google_sub: NULL
+      auth_provider: 'local'
+      avatar_url: NULL
+  [2] 
+      user_id: 2
+      username: 'GGG'
+      email: 'GGG@aura.local'
+      password: '$2a$10$KAH/5reCak5ozsOYlS.kv.CWsGjjm74OZ6Mu9IXXSUUE5DohItP9.'
+      created_at: datetime.datetime(2026, 1, 29, 15, 19, 55, 717203)
+      google_sub: NULL
+      auth_provider: 'local'
+      avatar_url: NULL
+  [3] 
+      user_id: 3
+      username: 'РРР'
+      email: 'РРР@aura.local'
+      password: '$2a$10$Prx/g9NvVN1H9EoA06f01Ot1e8X4.F6TQpCACQt5i74JoGFMbl6ae'
+      created_at: datetime.datetime(2026, 1, 29, 15, 23, 57, 167813)
+      google_sub: NULL
+      auth_provider: 'local'
+      avatar_url: NULL
+
+================================================================================
+Konec obzora.
+================================================================================

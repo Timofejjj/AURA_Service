@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: aura_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-aura_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aura_backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-aura_db}
+      - ML_SERVICE_URL=http://ml_service:5000
+      - JWT_SECRET=super_secret_key_change_me
+    volumes:
+      - ./docs:/root/docs 
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: aura_swagger
+    ports:
+      - "8081:8080"
+    environment:
+      SWAGGER_JSON: /docs/swagger.yaml
+    volumes:
+      - ./docs/swagger.yaml:/docs/swagger.yaml
+
+
+  ml_service:
+    build: ./ml_part
+    container_name: aura_ml
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-aura_db}
+
+volumes:
+  postgres_data:

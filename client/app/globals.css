@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+body {
+  font-family: Unbounded, sans-serif;
+}
+
+.sans {
+  font-family: Open Sans, sans-serif;
+}
+
+.unbounded {
+  font-family: Unbounded, sans-serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* для Chrome, Safari, and Opera */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* для IE and Edge */
+  scrollbar-width: none;  /* для Firefox */
+}
+/*!* Магия для создания эффекта слайдера *!*/
+/*.scroll-snap-x {*/
+/*  scroll-snap-type: x mandatory;*/
+/*  scroll-behavior: smooth;*/
+/*}*/
+
+/*.scroll-snap-align-center {*/
+/*  scroll-snap-align: center;*/
+/*}*/

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" aria-hidden="true">
+  <defs>
+    <radialGradient id="micro">
+      <stop offset="0%" style="stop-color:white;stop-opacity:0.4"/>
+      <stop offset="70%" style="stop-color:white;stop-opacity:0"/>
+    </radialGradient>
+    <filter id="blur">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6"/>
+    </filter>
+  </defs>
+  <circle cx="40" cy="40" r="35" fill="url(#micro)" filter="url(#blur)"/>
+</svg>

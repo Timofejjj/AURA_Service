@@ -1,0 +1,136 @@
+/**
+ * Liquid Glass — глобальный модуль визуальных эффектов для интерактивных элементов
+ * Подключите один общий SVG с id="lg-filter-svg" в документе (см. README).
+ */
+
+:root {
+  /* Радиус скругления кнопок/карточек */
+  --lg-button-radius: 30px;
+  /* Фон стекла: полупрозрачный белый */
+  --lg-glass-bg: rgba(255, 255, 255, 0.25);
+  /* Размытие фона (backdrop) */
+  --lg-backdrop-blur: 12px;
+  /* Макс. смещение для feDisplacementMap (0 = без дисторции) */
+  --lg-displacement-max: 24;
+  /* Длительность нажатия (ms) */
+  --lg-press-duration: 320;
+  /* Длительность возврата (ms) */
+  --lg-return-duration: 520;
+  /* Цвет левого/верхнего блика (пастельный) */
+  --lg-rim-left: rgba(233, 93, 44, 0.5);
+  /* Цвет правого/нижнего блика */
+  --lg-rim-right: rgba(233, 93, 44, 0.4);
+  /* Мягкая тень под элементом */
+  --lg-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.12);
+  /* Сила внутренней тени (inset) для объёма */
+  --lg-inset-strength: 0 2px 6px rgba(255, 255, 255, 0.5);
+  /* Смещение при нажатии (translateY, px) */
+  --lg-press-y: 4px;
+  /* Масштаб при нажатии (0.98–1) */
+  --lg-press-scale: 0.985;
+}
+
+/* Базовые стили для элементов с эффектом Liquid Glass */
+.lg,
+[data-lg="auto"],
+button.lg,
+a.lg,
+[role="button"].lg,
+.clickable.lg,
+.accordion-header.lg,
+.dropdown-toggle.lg,
+.tile.lg {
+  --lg-current-bg: var(--lg-glass-bg);
+  position: relative;
+  background: var(--lg-current-bg);
+  backdrop-filter: blur(var(--lg-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--lg-backdrop-blur));
+  border-radius: var(--lg-button-radius);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    var(--lg-shadow),
+    var(--lg-inset-strength),
+    -2px -2px 8px -2px var(--lg-rim-left),
+    2px -2px 8px -2px var(--lg-rim-right);
+  transition:
+    transform calc(var(--lg-return-duration) * 1ms) ease-out,
+    box-shadow calc(var(--lg-return-duration) * 1ms) ease-out,
+    filter calc(var(--lg-return-duration) * 1ms) ease-out;
+  will-change: transform;
+  cursor: pointer;
+}
+
+/* Сохраняем полное скругление для кнопок навбара и других круглых элементов */
+.lg.rounded-full,
+[data-lg="auto"].rounded-full {
+  border-radius: 9999px !important;
+}
+
+/* Отказ от эффекта для конкретного элемента */
+.lg-ignore,
+[data-lg-ignore] {
+  background: unset !important;
+  backdrop-filter: unset !important;
+  -webkit-backdrop-filter: unset !important;
+  box-shadow: unset !important;
+  border: unset !important;
+  transition: unset !important;
+  will-change: unset !important;
+}
+
+/* Состояние нажатия: вдавленность + лёгкий сдвиг вниз и scale */
+.lg--pressed,
+.lg--active {
+  transform: translateY(var(--lg-press-y)) scale(var(--lg-press-scale));
+  box-shadow:
+    0 4px 12px -4px rgba(0, 0, 0, 0.15),
+    inset 0 3px 10px -2px rgba(0, 0, 0, 0.08),
+    -1px -1px 6px -2px var(--lg-rim-left),
+    1px -1px 6px -2px var(--lg-rim-right);
+  transition-duration: calc(var(--lg-press-duration) * 1ms);
+}
+
+/* Подключение SVG-фильтра дисторции (создаётся скриптом или вручную) */
+.lg--pressed[data-lg-filter],
+.lg--active[data-lg-filter] {
+  filter: url(#lg-displace);
+}
+
+/* Полное отключение визуала Liquid Glass */
+.no-lq,
+.no-lg {
+  background: unset !important;
+  backdrop-filter: unset !important;
+  box-shadow: unset !important;
+  border: unset !important;
+  filter: unset !important;
+  transition: unset !important;
+  will-change: unset !important;
+}
+
+/* Уменьшённое движение: только transform, без filter */
+@media (prefers-reduced-motion: reduce) {
+  .lg,
+  [data-lg="auto"],
+  .lg--pressed,
+  .lg--active {
+    transition: transform 0.15s ease-out;
+  }
+  .lg--pressed[data-lg-filter],
+  .lg--active[data-lg-filter] {
+    filter: none;
+  }
+}
+
+/* Fallback для браузеров без backdrop-filter: полупрозрачный фон */
+@supports not (backdrop-filter: blur(1px)) {
+  .lg,
+  [data-lg="auto"] {
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow:
+      var(--lg-shadow),
+      var(--lg-inset-strength),
+      -2px -2px 8px -2px var(--lg-rim-left),
+      2px -2px 8px -2px var(--lg-rim-right);
+  }
+}

@@ -1,0 +1,310 @@
+/**
+ * Liquid Glass Nav Bar — Visual spec implementation
+ * Design tokens and production-ready styles.
+ */
+
+:root {
+  /* Container (pill) */
+  --nav-pill-bg: rgba(255, 255, 255, 0.6);
+  --nav-pill-blur: 16px;
+  --nav-pill-saturate: 1.08;
+  --nav-pill-shadow: 0 10px 20px rgba(14, 18, 20, 0.22), 0 2px 6px rgba(14, 18, 20, 0.12);
+  --nav-pill-inset: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.02));
+  --nav-pill-border: 1px solid rgba(255, 255, 255, 0.35);
+  --nav-pill-radius: 9999px;
+
+  /* Buttons */
+  --nav-btn-size: 48px;
+  --nav-btn-inactive-bg: rgba(255, 255, 255, 0.42);
+  --nav-btn-active-tint: rgba(255, 150, 110, 0.1);
+  --nav-btn-shadow: 0 6px 14px rgba(10, 12, 14, 0.18);
+  --nav-btn-rim: 1px solid rgba(255, 255, 255, 0.4);
+  --nav-btn-specular: rgba(255, 255, 255, 0.4);
+
+  /* Motion */
+  --nav-ease-hover: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --nav-ease-press: cubic-bezier(0.4, 0, 0.2, 1);
+  --nav-duration-hover: 280ms;
+  --nav-duration-press: 140ms;
+  --nav-hover-y: -6px;
+  --nav-hover-scale: 1.03;
+  --nav-press-scale: 0.98;
+  --nav-press-y: 1.5px;
+
+  /* Focus */
+  --nav-focus-ring: 0 0 0 6px rgba(120, 160, 255, 0.12);
+  --nav-focus-outline: 2px solid rgba(120, 160, 255, 0.5);
+
+  /* Reflections */
+  --nav-shimmer-duration: 2.8s;
+  --nav-float-duration: 14s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --nav-shimmer-duration: 0s;
+    --nav-float-duration: 0s;
+  }
+}
+
+/* Page background (reference) */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  background: #D4D8DD;
+  z-index: 0;
+}
+
+/* Pill container */
+.nav-pill {
+  --nav-pill-padding: 12px 24px;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 32px), 360px);
+  max-width: 360px;
+  padding: var(--nav-pill-padding);
+  border-radius: var(--nav-pill-radius);
+  background: var(--nav-pill-bg);
+  backdrop-filter: blur(var(--nav-pill-blur)) saturate(var(--nav-pill-saturate));
+  -webkit-backdrop-filter: blur(var(--nav-pill-blur)) saturate(var(--nav-pill-saturate));
+  box-shadow: var(--nav-pill-shadow);
+  border: var(--nav-pill-border);
+  z-index: 50;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.nav-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--nav-pill-inset);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Noise overlay */
+.nav-pill__noise {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Reflection 1: broad soft */
+.nav-pill__reflection--broad {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 35%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 65%,
+    transparent 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  animation: slowFloat var(--nav-float-duration) ease-in-out infinite;
+}
+
+/* Reflection 2: specular sheen */
+.nav-pill__reflection--sheen {
+  position: absolute;
+  inset: -30%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  filter: blur(12px);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: shimmer var(--nav-shimmer-duration) linear infinite;
+}
+
+/* Reflection 3: micro (positioned by JS) */
+.nav-pill__reflection--micro {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.nav-pill__reflection--micro {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.nav-pill__reflection--micro.is-visible {
+  opacity: 1;
+}
+
+@keyframes slowFloat {
+  0%, 100% { transform: translateX(-6%); }
+  50% { transform: translateX(6%); }
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-40%); }
+  to { transform: translateX(140%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-pill__reflection--broad,
+  .nav-pill__reflection--sheen {
+    animation: none;
+  }
+  .nav-pill__reflection--broad {
+    opacity: 0.6;
+  }
+}
+
+.nav-pill__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 4px;
+}
+
+.nav-pill__buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  gap: 4px;
+}
+
+/* Button */
+.nav-btn {
+  --btn-size: var(--nav-btn-size);
+  position: relative;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  min-width: var(--btn-size);
+  min-height: var(--btn-size);
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--nav-duration-hover) var(--nav-ease-hover);
+  transform: translateZ(0);
+}
+
+.nav-btn:hover {
+  transform: translateZ(0) translateY(var(--nav-hover-y)) scale(var(--nav-hover-scale));
+}
+
+.nav-btn:active {
+  transform: translateZ(0) translateY(var(--nav-press-y)) scale(var(--nav-press-scale));
+  transition-duration: var(--nav-duration-press);
+  transition-timing-function: var(--nav-ease-press);
+}
+
+.nav-btn:focus {
+  outline: none;
+}
+
+.nav-btn:focus-visible {
+  box-shadow: var(--nav-focus-ring);
+  outline: var(--nav-focus-outline);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-btn:hover {
+    transform: translateZ(0) translateY(-2px);
+  }
+  .nav-btn:active {
+    transform: translateZ(0) scale(0.98);
+  }
+}
+
+/* Glass dome */
+.nav-btn__glass {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--nav-btn-inactive-bg);
+  box-shadow: var(--nav-btn-shadow), var(--nav-btn-rim);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nav-btn--active .nav-btn__glass {
+  background: linear-gradient(180deg, rgba(255,180,140,0.35), rgba(233,93,44,0.25));
+  box-shadow: var(--nav-btn-shadow), 0 0 0 1px rgba(255,255,255,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* Specular highlight (top-left) */
+.nav-btn__highlight {
+  position: absolute;
+  top: 8%;
+  left: 12%;
+  width: 35%;
+  height: 28%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--nav-btn-specular), transparent 70%);
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.nav-btn--active .nav-btn__highlight {
+  opacity: 0.7;
+}
+
+/* Icon */
+.nav-btn__icon {
+  position: relative;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  color: #5a5a5a;
+  transition: transform var(--nav-duration-hover) var(--nav-ease-hover), color 0.2s ease;
+}
+
+.nav-btn__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.nav-btn:hover .nav-btn__icon {
+  transform: translateY(-2px);
+  color: #3a3a3a;
+}
+
+.nav-btn--active .nav-btn__icon {
+  color: #fff;
+  transform: translateY(-2px);
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.4));
+}
+
+.nav-btn:active .nav-btn__icon {
+  transform: translateY(0);
+  transition-duration: var(--nav-duration-press);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-btn:hover .nav-btn__icon {
+    transform: translateY(-1px);
+  }
+}

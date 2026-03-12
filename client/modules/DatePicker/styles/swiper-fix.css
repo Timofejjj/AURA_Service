@@ -1,0 +1,16 @@
+.swiper-slide {
+    /*width: 100vw !important;*/
+    div {
+        div {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+    }
+}
+
+
+/* запрещаем auto-size от Swiper */
+.swiper-wrapper {
+    width: 100vw !important;
+}

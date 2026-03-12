@@ -1,0 +1,130 @@
+/**
+ * Liquid Glass — Profile card (Support / Logout)
+ * Semi-translucent frosted card with rim glow, inner bevel, displacement-ready.
+ * Tuning: see custom properties below.
+ *
+ * Integration: (1) Include this CSS and liquid-glass--card.js in your bundle.
+ * (2) Add class "lg-card" to the existing card wrapper (keep all data-*, id, aria-*, handlers).
+ * (3) After mount: LiquidGlassCard.attach(document.querySelector('.lg-card'))
+ *     On unmount: LiquidGlassCard.detach(element)
+ */
+
+:root {
+  /* Blur strength (frosted glass) */
+  --lg-blur: 24px;
+  /* Max displacement scale for SVG filter (press effect) */
+  --lg-displacement-max: 18;
+  /* Press-in animation duration (ms) */
+  --lg-press-duration: 160;
+  /* Release animation duration (ms) */
+  --lg-release-duration: 280;
+  /* Rim glow / highlight (app accent: orange-red) */
+  --lg-rim-color: rgba(233, 93, 44, 0.35);
+  /* Diffuse shadow under card */
+  --lg-shadow: 0 10px 32px -8px rgba(0, 0, 0, 0.14), 0 4px 12px -4px rgba(0, 0, 0, 0.08);
+  /* Card border radius (match reference ~12–16px) */
+  --lg-radius: 1rem;
+  /* Easing for press/release */
+  --lg-ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+  /* Card background (semi-translucent; fallback when no backdrop-filter) */
+  --lg-card-bg: rgba(255, 255, 255, 0.72);
+  /* Inner bevel / top highlight */
+  --lg-inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  /* Reflection stripe (subtle) */
+  --lg-reflection: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 25%, transparent 100%);
+}
+
+/* Card container: same shape and layout as reference */
+.lg-card {
+  --lg-current-rim: var(--lg-rim-color);
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  border-radius: var(--lg-radius);
+  overflow: hidden;
+  /* Frosted glass */
+  background: var(--lg-card-bg);
+  backdrop-filter: blur(var(--lg-blur));
+  -webkit-backdrop-filter: blur(var(--lg-blur));
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    var(--lg-shadow),
+    var(--lg-inner-highlight),
+    0 -2px 12px -2px var(--lg-current-rim),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  transition:
+    transform var(--lg-release-duration)ms var(--lg-ease),
+    box-shadow var(--lg-release-duration)ms var(--lg-ease),
+    filter var(--lg-release-duration)ms var(--lg-ease);
+  will-change: transform;
+}
+
+/* Micro-grain / surface texture (optional, very subtle) */
+.lg-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: var(--lg-reflection);
+  opacity: 0.6;
+}
+
+/* Idle: subtle rim already set above */
+
+/* Hover / focus: lift and soften rim */
+.lg-card:hover,
+.lg-card:focus-within {
+  transform: translateY(-3px);
+  --lg-current-rim: rgba(233, 93, 44, 0.28);
+  box-shadow:
+    0 14px 40px -10px rgba(0, 0, 0, 0.16),
+    0 6px 16px -4px rgba(0, 0, 0, 0.08),
+    var(--lg-inner-highlight),
+    0 -2px 16px -2px var(--lg-current-rim),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+/* Pressed: inward displacement (visual class; JS animates filter) */
+.lg-card.lg--pressed {
+  transform: translateY(3px) scale(0.995);
+  transition-duration: calc(var(--lg-press-duration) * 1ms);
+  box-shadow:
+    0 6px 20px -6px rgba(0, 0, 0, 0.18),
+    var(--lg-inner-highlight),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* Filter applied by JS when displacement is used */
+.lg-card.lg--displacing {
+  filter: url(#lg-displace);
+}
+
+/* Fallback: no backdrop-filter (e.g. older Safari) */
+@supports not (backdrop-filter: blur(1px)) and not (-webkit-backdrop-filter: blur(1px)) {
+  .lg-card {
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow:
+      var(--lg-shadow),
+      var(--lg-inner-highlight),
+      0 -2px 12px -2px var(--lg-rim-color),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Reduced motion: no transform scale, only simple translate */
+@media (prefers-reduced-motion: reduce) {
+  .lg-card {
+    transition: box-shadow 0.2s ease;
+  }
+  .lg-card:hover,
+  .lg-card:focus-within {
+    transform: translateY(-2px);
+  }
+  .lg-card.lg--pressed {
+    transform: translateY(2px);
+  }
+  .lg-card.lg--displacing {
+    filter: none;
+  }
+}

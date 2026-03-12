@@ -1,0 +1,1017 @@
+﻿openapi: 3.0.3
+info:
+  title: Aura AI Backend API
+  description: |
+    API РґР»СЏ AI-СЃС‚Р°СЂС‚Р°РїР° РІ СЃС„РµСЂРµ Р·РґРѕСЂРѕРІСЊСЏ Рё РїСЂРѕРґСѓРєС‚РёРІРЅРѕСЃС‚Рё.
+    
+    ## РђСѓС‚РµРЅС‚РёС„РёРєР°С†РёСЏ
+    API РёСЃРїРѕР»СЊР·СѓРµС‚ JWT Bearer С‚РѕРєРµРЅС‹:
+    - **Access Token**: 15 РјРёРЅСѓС‚
+    - **Refresh Token**: 7 РґРЅРµР№
+    
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+tags:
+  - name: Auth
+    description: РђСѓС‚РµРЅС‚РёС„РёРєР°С†РёСЏ Рё СѓРїСЂР°РІР»РµРЅРёРµ СЃРµСЃСЃРёСЏРјРё
+  - name: AI Settings
+    description: РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё AI РґР»СЏ РѕС‚С‡С‘С‚РѕРІ
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Access Token
+
+  responses:
+    UnauthorizedError:
+      description: Access token РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РёР»Рё РЅРµРґРµР№СЃС‚РІРёС‚РµР»РµРЅ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    BadRequestError:
+      description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё РґР°РЅРЅС‹С…
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    InternalServerError:
+      description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР° СЃРµСЂРІРµСЂР°
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "error message"
+
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 100
+          example: "john_doe"
+          description: РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (СѓРЅРёРєР°Р»СЊРЅРѕРµ)
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+          description: Email РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (СѓРЅРёРєР°Р»СЊРЅС‹Р№)
+        password:
+          type: string
+          format: password
+          minLength: 6
+          example: "SecurePass123!"
+          description: РџР°СЂРѕР»СЊ (РјРёРЅРёРјСѓРј 6 СЃРёРјРІРѕР»РѕРІ)
+
+    RegisterResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: "john_doe"
+        email:
+          type: string
+          example: "john@example.com"
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "john@example.com"
+        password:
+          type: string
+          format: password
+          example: "SecurePass123!"
+
+    LoginResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: "john_doe"
+        access_token:
+          type: string
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+          description: Access token (РґРµР№СЃС‚РІРёС‚РµР»РµРЅ 15 РјРёРЅСѓС‚)
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+          description: Refresh token (РґРµР№СЃС‚РІРёС‚РµР»РµРЅ 7 РґРЅРµР№)
+
+    RefreshRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+          description: Refresh token РїРѕР»СѓС‡РµРЅРЅС‹Р№ РїСЂРё Р»РѕРіРёРЅРµ
+
+    RefreshResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+          description: РќРѕРІС‹Р№ access token
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+          description: РќРѕРІС‹Р№ refresh token
+
+    LogoutRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    LogoutResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "logged out"
+
+    AIPromptsSettings:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+          description: ID РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+        words_for_prompt:
+          type: string
+          nullable: true
+          example: "РЇ СЂР°Р±РѕС‚Р°СЋ РїСЂРѕРіСЂР°РјРјРёСЃС‚РѕРј, РІРµРґСѓ Р°РєС‚РёРІРЅС‹Р№ РѕР±СЂР°Р· Р¶РёР·РЅРё. Р’ РѕС‚С‡С‘С‚Р°С… С…РѕС‡Сѓ РІРёРґРµС‚СЊ Р°РєС†РµРЅС‚ РЅР° РїСЂРѕРґСѓРєС‚РёРІРЅРѕСЃС‚Рё Рё Р±Р°Р»Р°РЅСЃРµ work-life."
+          description: РџРµСЂСЃРѕРЅР°Р»СЊРЅС‹Р№ РїСЂРѕРјРїС‚ РґР»СЏ РіРµРЅРµСЂР°С†РёРё AI РѕС‚С‡С‘С‚РѕРІ
+
+    UpsertAISettingsRequest:
+      type: object
+      required:
+        - words_for_prompt
+      properties:
+        words_for_prompt:
+          type: string
+          minLength: 10
+          maxLength: 5000
+          example: "РЇ СЂР°Р±РѕС‚Р°СЋ РїСЂРѕРіСЂР°РјРјРёСЃС‚РѕРј, РІРµРґСѓ Р°РєС‚РёРІРЅС‹Р№ РѕР±СЂР°Р· Р¶РёР·РЅРё. Р’ РѕС‚С‡С‘С‚Р°С… С…РѕС‡Сѓ РІРёРґРµС‚СЊ Р°РєС†РµРЅС‚ РЅР° РїСЂРѕРґСѓРєС‚РёРІРЅРѕСЃС‚Рё Рё Р±Р°Р»Р°РЅСЃРµ work-life."
+          description: РўРµРєСЃС‚ РїСЂРѕРјРїС‚Р° (РѕС‚ 10 РґРѕ 5000 СЃРёРјРІРѕР»РѕРІ)
+
+    DeleteAISettingsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "AI settings deleted successfully"
+
+    Report:
+      type: object
+      required:
+        - id
+        - user_id
+        - log_datetime
+        - report
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        log_datetime:
+          type: string
+          format: date-time
+          example: "2025-11-14T20:00:00Z"
+        report:
+          type: string
+          example: "РЎРµРіРѕРґРЅСЏ РїСЂРѕРґСѓРєС‚РёРІРЅС‹Р№ РґРµРЅСЊ..."
+
+    Thought:
+      type: object
+      required:
+        - thought_id
+        - user_id
+        - created_at
+        - content
+      properties:
+        thought_id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-11-17T20:00:00Z"
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-11-17T20:01:00Z"
+        content:
+          type: string
+          example: "РЎРµРіРѕРґРЅСЏ С‡СѓРІСЃС‚РІСѓСЋ СЃРµР±СЏ РїСЂРѕРґСѓРєС‚РёРІРЅРѕ!"
+        voice_id:
+          type: string
+          nullable: true
+          example: "voice_123"
+        sentiment_label:
+          type: string
+          nullable: true
+          example: "positive"
+        sentiment_score:
+          type: number
+          format: double
+          nullable: true
+          example: 0.8
+        image_id:
+          type: string
+          nullable: true
+          example: "img_456"
+        type_thought:
+          type: string
+          nullable: true
+          example: "thought"
+
+    UpdateThoughtReq:
+      type: object
+      required:
+        - thought_id
+        - content
+      properties:
+        thought_id:
+          type: integer
+          format: int64
+          example: 1
+        content:
+          type: string
+          example: "РћР±РЅРѕРІР»С‘РЅРЅР°СЏ РјС‹СЃР»СЊ"
+        voice_id:
+          type: string
+          nullable: true
+          example: "voice_123"
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2025-11-17T20:01:00Z"
+        sentiment_label:
+          type: string
+          nullable: true
+          example: "positive"
+        sentiment_score:
+          type: number
+          format: double
+          nullable: true
+          example: 0.8
+        image_id:
+          type: string
+          nullable: true
+          example: "img_456"
+        type_thought:
+          type: string
+          nullable: true
+          example: "thought"
+
+  parameters:
+    page_size:
+      name: page_size
+      in: query
+      required: false
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: РљРѕР»-РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ
+    thought_id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+      description: ID РјС‹СЃР»Рё
+    user_id:
+      name: user_id
+      in: query
+      description: ID РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    limit:
+      name: limit
+      in: query
+      description: РљРѕР»-РІРѕ РѕС‚С‡С‘С‚РѕРІ (РјР°РєСЃРёРјСѓРј 100)
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+        maximum: 100
+        default: 10
+    offset:
+      name: offset
+      in: query
+      description: РЎРјРµС‰РµРЅРёРµ РґР»СЏ РїР°РіРёРЅР°С†РёРё
+      schema:
+        type: integer
+        format: int64
+        minimum: 0
+        default: 0
+    report_id:
+      name: id
+      in: path
+      description: ID РѕС‚С‡С‘С‚Р°
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+        
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Р РµРіРёСЃС‚СЂР°С†РёСЏ РЅРѕРІРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+      description: РЎРѕР·РґР°С‘С‚ РЅРѕРІРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РІ СЃРёСЃС‚РµРјРµ. Email Рё username РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ СѓРЅРёРєР°Р»СЊРЅС‹РјРё.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              example1:
+                summary: РџСЂРёРјРµСЂ СЂРµРіРёСЃС‚СЂР°С†РёРё
+                value:
+                  username: "john_doe"
+                  email: "john@example.com"
+                  password: "SecurePass123!"
+      responses:
+        '201':
+          description: РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓСЃРїРµС€РЅРѕ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+              examples:
+                example1:
+                  value:
+                    user_id: 1
+                    username: "john_doe"
+                    email: "john@example.com"
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Р’С…РѕРґ РІ СЃРёСЃС‚РµРјСѓ
+      description: |
+        РђСѓС‚РµРЅС‚РёС„РёС†РёСЂСѓРµС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РїР°СЂСѓ С‚РѕРєРµРЅРѕРІ:
+        - **access_token**: РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РґРѕСЃС‚СѓРїР° Рє Р·Р°С‰РёС‰С‘РЅРЅС‹Рј СЌРЅРґРїРѕРёРЅС‚Р°Рј (15 РјРёРЅСѓС‚)
+        - **refresh_token**: РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ access_token (7 РґРЅРµР№)
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              example1:
+                summary: РџСЂРёРјРµСЂ Р»РѕРіРёРЅР°
+                value:
+                  email: "john@example.com"
+                  password: "SecurePass123!"
+      responses:
+        '200':
+          description: РЈСЃРїРµС€РЅР°СЏ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёСЏ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                example1:
+                  value:
+                    user_id: 1
+                    username: "john_doe"
+                    access_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInR5cGUiOiJhY2Nlc3MiLCJleHAiOjE2OTk5OTk5OTksImlhdCI6MTY5OTk5OTAwMH0..."
+                    refresh_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsInR5cGUiOiJyZWZyZXNoIiwiZXhwIjoxNjk5OTk5OTk5LCJpYXQiOjE2OTk5OTkwMDB9..."
+        '401':
+          description: РќРµРІРµСЂРЅС‹Рµ СѓС‡С‘С‚РЅС‹Рµ РґР°РЅРЅС‹Рµ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "invalid credentials"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: РћР±РЅРѕРІР»РµРЅРёРµ access С‚РѕРєРµРЅР°
+      description: |
+        РСЃРїРѕР»СЊР·СѓРµС‚ refresh С‚РѕРєРµРЅ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РЅРѕРІРѕР№ РїР°СЂС‹ С‚РѕРєРµРЅРѕРІ.
+        РЎС‚Р°СЂС‹Р№ refresh С‚РѕРєРµРЅ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅС‹Рј РїРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕРіРѕ РѕР±РЅРѕРІР»РµРЅРёСЏ.
+      operationId: refresh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+            examples:
+              example1:
+                summary: РџСЂРёРјРµСЂ refresh
+                value:
+                  refresh_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: РўРѕРєРµРЅС‹ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅС‹
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+              examples:
+                example1:
+                  value:
+                    access_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    refresh_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '401':
+          description: РќРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅС‹Р№ РёР»Рё РёСЃС‚С‘РєС€РёР№ refresh С‚РѕРєРµРЅ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "invalid refresh token"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Р’С‹С…РѕРґ РёР· СЃРёСЃС‚РµРјС‹
+      description: |
+        РћС‚Р·С‹РІР°РµС‚ refresh С‚РѕРєРµРЅ, РґРµР»Р°СЏ РµРіРѕ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅС‹Рј.
+        РџРѕСЃР»Рµ logout РЅРµРѕР±С…РѕРґРёРјРѕ СЃРЅРѕРІР° РІС‹РїРѕР»РЅРёС‚СЊ login РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РЅРѕРІС‹С… С‚РѕРєРµРЅРѕРІ.
+      operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+            examples:
+              example1:
+                summary: РџСЂРёРјРµСЂ logout
+                value:
+                  refresh_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: РЈСЃРїРµС€РЅС‹Р№ РІС‹С…РѕРґ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+              examples:
+                example1:
+                  value:
+                    status: "logged out"
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/ai-settings:
+    get:
+      tags:
+        - AI Settings
+      summary: РџРѕР»СѓС‡РёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё AI
+      description: |
+        Р’РѕР·РІСЂР°С‰Р°РµС‚ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё AI РґР»СЏ С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
+        Р•СЃР»Рё РЅР°СЃС‚СЂРѕР№РєРё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹, РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ `words_for_prompt`.
+      operationId: getAISettings
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: РќР°СЃС‚СЂРѕР№РєРё СѓСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅС‹
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIPromptsSettings'
+              examples:
+                withSettings:
+                  summary: РЎ РЅР°СЃС‚СЂРѕР№РєР°РјРё
+                  value:
+                    user_id: 1
+                    words_for_prompt: "РЇ СЂР°Р±РѕС‚Р°СЋ РїСЂРѕРіСЂР°РјРјРёСЃС‚РѕРј, РІРµРґСѓ Р°РєС‚РёРІРЅС‹Р№ РѕР±СЂР°Р· Р¶РёР·РЅРё."
+                withoutSettings:
+                  summary: Р‘РµР· РЅР°СЃС‚СЂРѕРµРє
+                  value:
+                    user_id: 1
+                    words_for_prompt: null
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    put:
+      tags:
+        - AI Settings
+      summary: РЎРѕР·РґР°С‚СЊ/РѕР±РЅРѕРІРёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё AI
+      description: |
+        РЎРѕР·РґР°С‘С‚ РЅРѕРІС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё РёР»Рё РѕР±РЅРѕРІР»СЏРµС‚ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРµ.
+        Р­С‚РѕС‚ РїСЂРѕРјРїС‚ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РїСЂРё РіРµРЅРµСЂР°С†РёРё РїРµСЂСЃРѕРЅР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… AI РѕС‚С‡С‘С‚РѕРІ.
+      operationId: upsertAISettings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertAISettingsRequest'
+            examples:
+              example1:
+                summary: РќР°СЃС‚СЂРѕР№РєРё РґР»СЏ РїСЂРѕРіСЂР°РјРјРёСЃС‚Р°
+                value:
+                  words_for_prompt: "РЇ СЂР°Р±РѕС‚Р°СЋ РїСЂРѕРіСЂР°РјРјРёСЃС‚РѕРј, РІРµРґСѓ Р°РєС‚РёРІРЅС‹Р№ РѕР±СЂР°Р· Р¶РёР·РЅРё. Р’ РѕС‚С‡С‘С‚Р°С… С…РѕС‡Сѓ РІРёРґРµС‚СЊ Р°РєС†РµРЅС‚ РЅР° РїСЂРѕРґСѓРєС‚РёРІРЅРѕСЃС‚Рё, Р±Р°Р»Р°РЅСЃРµ СЂР°Р±РѕС‚С‹ Рё РѕС‚РґС‹С…Р°, Рё СЂРµРєРѕРјРµРЅРґР°С†РёРё РїРѕ СѓР»СѓС‡С€РµРЅРёСЋ РєРѕРЅС†РµРЅС‚СЂР°С†РёРё."
+              example2:
+                summary: РќР°СЃС‚СЂРѕР№РєРё РґР»СЏ СЃРїРѕСЂС‚СЃРјРµРЅР°
+                value:
+                  words_for_prompt: "РЇ РїСЂРѕС„РµСЃСЃРёРѕРЅР°Р»СЊРЅС‹Р№ СЃРїРѕСЂС‚СЃРјРµРЅ. Р’Р°Р¶РЅС‹ РїРѕРєР°Р·Р°С‚РµР»Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ, РїРёС‚Р°РЅРёСЏ Рё РєР°С‡РµСЃС‚РІР° СЃРЅР°. РҐРѕС‡Сѓ СЂРµРєРѕРјРµРЅРґР°С†РёРё РїРѕ РѕРїС‚РёРјРёР·Р°С†РёРё С‚СЂРµРЅРёСЂРѕРІРѕС‡РЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР°."
+      responses:
+        '200':
+          description: РќР°СЃС‚СЂРѕР№РєРё СѓСЃРїРµС€РЅРѕ СЃРѕС…СЂР°РЅРµРЅС‹
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIPromptsSettings'
+              examples:
+                example1:
+                  value:
+                    user_id: 1
+                    words_for_prompt: "РЇ СЂР°Р±РѕС‚Р°СЋ РїСЂРѕРіСЂР°РјРјРёСЃС‚РѕРј, РІРµРґСѓ Р°РєС‚РёРІРЅС‹Р№ РѕР±СЂР°Р· Р¶РёР·РЅРё..."
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё (С‚РµРєСЃС‚ СЃР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРёР№ РёР»Рё РґР»РёРЅРЅС‹Р№)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                tooShort:
+                  summary: РўРµРєСЃС‚ СЃР»РёС€РєРѕРј РєРѕСЂРѕС‚РєРёР№
+                  value:
+                    error: "words_for_prompt must be at least 10 characters long"
+                tooLong:
+                  summary: РўРµРєСЃС‚ СЃР»РёС€РєРѕРј РґР»РёРЅРЅС‹Р№
+                  value:
+                    error: "words_for_prompt must not exceed 5000 characters"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    
+    delete:
+      tags:
+        - AI Settings
+      summary: РЈРґР°Р»РёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё AI
+      description: |
+        РЈРґР°Р»СЏРµС‚ РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё AI.
+        РџРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґРµС„РѕР»С‚РЅС‹Р№ РїСЂРѕРјРїС‚ РґР»СЏ РіРµРЅРµСЂР°С†РёРё РѕС‚С‡С‘С‚РѕРІ.
+      operationId: deleteAISettings
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: РќР°СЃС‚СЂРѕР№РєРё СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅС‹
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteAISettingsResponse'
+              examples:
+                example1:
+                  value:
+                    message: "AI settings deleted successfully"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/reports:
+    post:
+      tags:
+        - Reports
+      summary: РЎРѕР·РґР°С‚СЊ РѕС‚С‡С‘С‚
+      description: РЎРѕР·РґР°С‘С‚ РЅРѕРІС‹Р№ РѕС‚С‡С‘С‚
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Report'
+            examples:
+              example1:
+                value:
+                  id: 1
+                  user_id: 1
+                  log_datetime: "2025-11-14T20:00:00Z"
+                  report: "РЎРµРіРѕРґРЅСЏ РїСЂРѕРґСѓРєС‚РёРІРЅС‹Р№ РґРµРЅСЊ..."
+      responses:
+        '200':
+          description: РћС‚С‡С‘С‚ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Report created successfully"
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "error occured while creating report"
+        '500':
+          description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "error occured while creating report"
+
+    get:
+      tags:
+        - Reports
+      summary: РџРѕР»СѓС‡РёС‚СЊ РѕС‚С‡С‘С‚С‹ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+      description: Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє РѕС‚С‡С‘С‚РѕРІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/user_id'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: РЎРїРёСЃРѕРє РѕС‚С‡С‘С‚РѕРІ РїРѕР»СѓС‡РµРЅ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Report'
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "error occured while listenig reports"
+        '500':
+          description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "error occured while listenig reports"
+
+  /api/reports/{id}:
+    get:
+      tags:
+        - Reports
+      summary: РџРѕР»СѓС‡РёС‚СЊ РѕС‚С‡С‘С‚ РїРѕ ID
+      description: Р’РѕР·РІСЂР°С‰Р°РµС‚ РѕРґРёРЅ РѕС‚С‡С‘С‚ РїРѕ ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/report_id'
+      responses:
+        '200':
+          description: РћС‚С‡С‘С‚ РїРѕР»СѓС‡РµРЅ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '404':
+          description: РћС‚С‡С‘С‚ РЅРµ РЅР°Р№РґРµРЅ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "report not found"
+        '500':
+          description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "error occured while listenig report"
+  /api/thoughts:
+    post:
+      tags:
+        - Thoughts
+      summary: РЎРѕР·РґР°С‚СЊ РјС‹СЃР»СЊ
+      description: РЎРѕР·РґР°С‘С‚ РЅРѕРІСѓСЋ РјС‹СЃР»СЊ Рё РїР°СЂР°Р»Р»РµР»СЊРЅРѕ Р·Р°РїСѓСЃРєР°РµС‚ ML-Р°РЅР°Р»РёР·
+      security:
+        - BearerAuth: []
+      operationId: "createThought"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            examples:
+              example1:
+                value:
+                  user_id: 1
+                  content: "РЎРµРіРѕРґРЅСЏ РїСЂРѕРґСѓРєС‚РёРІРЅС‹Р№ РґРµРЅСЊ"
+      responses:
+        '201':
+          description: РњС‹СЃР»СЊ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thought'
+              examples:
+                example1:
+                  value:
+                    thought_id: 1
+                    user_id: 1
+                    created_at: "2025-11-17T20:00:00Z"
+                    submitted_at: "2025-11-17T20:00:00Z"
+                    content: "РЎРµРіРѕРґРЅСЏ РїСЂРѕРґСѓРєС‚РёРІРЅС‹Р№ РґРµРЅСЊ"
+                    sentiment_label: "positive"
+                    sentiment_score: 0.8
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "failed to parse request"
+        '500':
+          description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "failed to create thought"
+
+    get:
+      tags:
+        - Thoughts
+      summary: РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РјС‹СЃР»РµР№
+      description: Р’РѕР·РІСЂР°С‰Р°РµС‚ РїРѕСЃР»РµРґРЅРёРµ РјС‹СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (СЃ РїР°РіРёРЅР°С†РёРµР№)
+      security:
+        - BearerAuth: []
+      operationId: "listThoughts"
+      parameters:
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: РЎРїРёСЃРѕРє РјС‹СЃР»РµР№ РїРѕР»СѓС‡РµРЅ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Thought'
+              examples:
+                example1:
+                  value:
+                    - thought_id: 1
+                      user_id: 1
+                      created_at: "2025-11-17T20:00:00Z"
+                      submitted_at: "2025-11-17T20:00:00Z"
+                      content: "РЎРµРіРѕРґРЅСЏ РїСЂРѕРґСѓРєС‚РёРІРЅС‹Р№ РґРµРЅСЊ"
+                      sentiment_label: "positive"
+                      sentiment_score: 0.8
+        '500':
+          description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "failed to fetch thoughts"
+    put:
+      tags:
+        - Thoughts
+      summary: РћР±РЅРѕРІРёС‚СЊ РјС‹СЃР»СЊ
+      description: РћР±РЅРѕРІР»СЏРµС‚ РјС‹СЃР»СЊ Рё Р·Р°РїСѓСЃРєР°РµС‚ РїРѕРІС‚РѕСЂРЅС‹Р№ ML-Р°РЅР°Р»РёР·
+      security:
+        - BearerAuth: []
+      operationId: "updateThought"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateThoughtReq'
+            examples:
+              example1:
+                value:
+                  thought_id: 1
+                  content: "РћР±РЅРѕРІР»С‘РЅРЅР°СЏ РјС‹СЃР»СЊ"
+      responses:
+        '200':
+          description: РњС‹СЃР»СЊ РѕР±РЅРѕРІР»РµРЅР°
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "Thought updated successfully"
+        '400':
+          description: РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "failed to parse request"
+        '500':
+          description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "failed to update thought"
+
+  /api/thoughts/{id}:
+    get:
+      tags:
+        - Thoughts
+      summary: РџРѕР»СѓС‡РёС‚СЊ РјС‹СЃР»СЊ РїРѕ ID
+      description: Р’РѕР·РІСЂР°С‰Р°РµС‚ РѕРґРЅСѓ РјС‹СЃР»СЊ РїРѕ ID
+      security:
+        - BearerAuth: []
+      operationId: "getThoughtById"
+      parameters:
+        - $ref: '#/components/parameters/thought_id'
+      responses:
+        '200':
+          description: РњС‹СЃР»СЊ РїРѕР»СѓС‡РµРЅР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Thought'
+              examples:
+                example1:
+                  value:
+                    thought_id: 1
+                    user_id: 1
+                    created_at: "2025-11-17T20:00:00Z"
+                    content: "РЎРµРіРѕРґРЅСЏ РїСЂРѕРґСѓРєС‚РёРІРЅС‹Р№ РґРµРЅСЊ"
+                    sentiment_label: "positive"
+                    sentiment_score: 0.8
+        '404':
+          description: РњС‹СЃР»СЊ РЅРµ РЅР°Р№РґРµРЅР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "thought not found"
+        '500':
+          description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "failed to fetch thought"
+    delete:
+      tags:
+        - Thoughts
+      summary: РЈРґР°Р»РёС‚СЊ РјС‹СЃР»СЊ
+      description: РЈРґР°Р»СЏРµС‚ РјС‹СЃР»СЊ РїРѕ ID
+      security:
+        - BearerAuth: []
+      operationId: "deleteThought"
+      parameters:
+        - $ref: '#/components/parameters/thought_id'
+      responses:
+        '200':
+          description: РњС‹СЃР»СЊ СѓРґР°Р»РµРЅР°
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "deleted"
+        '500':
+          description: Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР°
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example1:
+                  value:
+                    error: "failed to delete thought"
