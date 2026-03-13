@@ -69,17 +69,12 @@ func main() {
 
 	tokenMaker := utils.NewTokenMaker(privateKey, publicKey, time.Minute*time.Duration(cfg.AccessTTLMinutes), time.Hour*24*time.Duration(cfg.RefreshTTLDays))
 
-	mlClient := services.NewMLClient(
-		cfg.MlEndpoint,
-		100*time.Second,
-		logger,
-	)
 	aiSvc := services.NewAIPromptsSettingsService(aiSettingsRepo, logger)
 	authSvc := services.NewAuthService(userRepo, refreshRepo, tokenMaker, logger)
 	googleOAuthSvc := services.NewGoogleOAuthService(userRepo, refreshRepo, tokenMaker, logger)
 	reportsSvc := services.NewReportsHistoryService(reportsRepo, logger)
 	reportRequestsSvc := services.NewReportRequestsService(reportRequestsRepo, userRepo, logger)
-	thoughtsSvc := services.NewThoughtsService(thoughtsRepo, mlClient, logger)
+	thoughtsSvc := services.NewThoughtsService(thoughtsRepo, logger)
 	readerSettingsSvc := services.NewReaderSettingsService(readerSettingsRepo, logger)
 
 	aiH := handlers.NewAIPromptsSettingsHandler(aiSvc, logger)

@@ -26,10 +26,3 @@ if (typeof window !== 'undefined') {
   console.log('[API Config] API_BASE_URL:', API_BASE_URL);
 }
 
-export const ML_API_BASE_URL = import.meta.env.VITE_ML_API_BASE_URL || 
-  (isTailscaleFunnel 
-    ? ''  // Используем относительные пути - прокси Vite перенаправит на localhost:8000
-    : isPublicAccess 
-      ? 'http://100.64.148.91:8000'  // Внутренний Tailscale IP (HTTP)
-      : 'http://localhost:8000');  // Локальный доступ
-

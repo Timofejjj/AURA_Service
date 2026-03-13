@@ -29,26 +29,6 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
-      '/api/analyze-thought': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/api/upload-voice': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/api/mind-score': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/api/generate-report': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/api/analyze-all-unanalyzed': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,

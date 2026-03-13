@@ -1,8 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Paperclip, ArrowLeft, X } from 'lucide-react';
-import { saveThought, uploadVoiceThought, uploadImage } from '../services/api';
-import { ML_API_BASE_URL } from '../config/api';
+import { saveThought, uploadImage } from '../services/api';
 
 interface CreateRecordViewProps {
   userId: number;
@@ -105,19 +104,6 @@ export const CreateRecordView: React.FC<CreateRecordViewProps> = ({
         type_thought: folderId || undefined
       });
       const savedThoughtId = response.thought_id || thoughtId;
-
-      if (savedThoughtId) {
-        const analyzeSentimentOnly = !!folderId;
-        fetch(`${ML_API_BASE_URL}/api/analyze-thought`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: userId,
-            thought_id: savedThoughtId,
-            analyze_sentiment_only: analyzeSentimentOnly
-          })
-        }).catch((e) => console.warn('ML analyze-thought request failed:', e));
-      }
 
       if (savedThoughtId && onSaveAndClose) {
         onThoughtSaved?.();
@@ -339,23 +325,9 @@ export const CreateRecordView: React.FC<CreateRecordViewProps> = ({
     onClose();
   };
 
-  const processVoice = async (blob: Blob) => {
-    setIsProcessingVoice(true);
-    try {
-      const res = await uploadVoiceThought(userId, blob);
-      const text = (res.transcribed_text || '').trim();
-      if (!text) {
-        alert("Не удалось распознать речь. Попробуйте говорить ближе к микрофону и записывать чуть дольше.");
-        return;
-      }
-      setContent(prev => (prev ? prev + ' ' + text : text));
-      // Store the ID so subsequent edits update this thought
-      setThoughtId(res.thought_id);
-    } catch (error) {
-      alert("Ошибка обработки голоса");
-    } finally {
-      setIsProcessingVoice(false);
-    }
+  const processVoice = async (_blob: Blob) => {
+    setIsProcessingVoice(false);
+    alert("Голосовая запись временно недоступна (ML-сервис отключён). Добавляйте мысли текстом.");
   };
 
   // --- Render ---

@@ -10,21 +10,14 @@ const { createProxyServer } = require('http-proxy');
 const PORT = 5173;
 const DIST_DIR = path.join(__dirname, 'dist');
 
-// Create proxy servers
+// Create proxy server (backend only; ML service removed)
 const backendProxy = createProxyServer({ target: 'http://localhost:8080', changeOrigin: true });
-const mlProxy = createProxyServer({ target: 'http://localhost:8000', changeOrigin: true });
 
 // Handle proxy errors
 backendProxy.on('error', (err, req, res) => {
   console.error('Backend proxy error:', err.message);
   res.writeHead(502, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Backend unavailable' }));
-});
-
-mlProxy.on('error', (err, req, res) => {
-  console.error('ML proxy error:', err.message);
-  res.writeHead(502, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ error: 'ML service unavailable' }));
 });
 
 // MIME types
@@ -44,15 +37,6 @@ const mimeTypes = {
   '.eot': 'application/vnd.ms-fontobject',
 };
 
-// ML API routes
-const mlRoutes = [
-  '/api/analyze-thought',
-  '/api/upload-voice',
-  '/api/mind-score',
-  '/api/generate-report',
-  '/api/analyze-all-unanalyzed',
-];
-
 const server = http.createServer((req, res) => {
   const url = req.url.split('?')[0];
   
@@ -61,14 +45,7 @@ const server = http.createServer((req, res) => {
     return backendProxy.web(req, res);
   }
   
-  // Proxy ML API requests
-  for (const route of mlRoutes) {
-    if (url.startsWith(route)) {
-      return mlProxy.web(req, res);
-    }
-  }
-  
-  // Proxy other API requests to backend
+  // Proxy API requests to backend
   if (url.startsWith('/api')) {
     return backendProxy.web(req, res);
   }

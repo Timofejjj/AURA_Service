@@ -10,19 +10,15 @@ import (
 )
 
 type ThoughtsService struct {
-	repo     *repository.ThoughtsRepo
-	mlClient *MLClient
-	logger   *logger.Logger
+	repo   *repository.ThoughtsRepo
+	logger *logger.Logger
 }
 
-func NewThoughtsService(repo *repository.ThoughtsRepo, mlClient *MLClient, logger *logger.Logger) *ThoughtsService {
-	return &ThoughtsService{repo: repo, mlClient: mlClient, logger: logger}
+func NewThoughtsService(repo *repository.ThoughtsRepo, logger *logger.Logger) *ThoughtsService {
+	return &ThoughtsService{repo: repo, logger: logger}
 }
 
 func (s *ThoughtsService) CreateThought(ctx context.Context, req *models.CreateThoughtReq) (*models.Thought, error) {
-	// ML analysis is done by ML service via /api/analyze-thought endpoint
-	// Frontend triggers it after creating the thought
-	// We just save the thought without analysis - ML service will update it later
 	thought, err := s.repo.CreateThought(ctx, req)
 	if err != nil {
 		s.logger.Error("thought creation failed", zap.Error(err), zap.Int64("user_id", req.UserID))
@@ -32,7 +28,6 @@ func (s *ThoughtsService) CreateThought(ctx context.Context, req *models.CreateT
 }
 
 func (s *ThoughtsService) UpdateThought(ctx context.Context, req *models.UpdateThoughtReq) error {
-	// Update thought content - ML analysis will be triggered separately if needed
 	err := s.repo.UpdateThought(ctx, req)
 	if err != nil {
 		s.logger.Error("thought update failed", zap.Error(err), zap.Int64("thought_id", req.ThoughtID))

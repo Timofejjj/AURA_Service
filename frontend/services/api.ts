@@ -4,7 +4,7 @@
 import { UserProfile, JournalFolder, Thought, WeeklyReportMetadata, WeeklyReportData, SaveThoughtResponse, UploadVoiceResponse, UploadImageResponse, FolderDetailsResponse, RegistrationPayload, AuthResponse, LoginPayload, LoginResponse, OnboardingResponse, SaveThoughtPayload } from '../types';
 
 // API Configuration - импортируем из config/api.ts
-import { API_BASE_URL, ML_API_BASE_URL } from '../config/api';
+import { API_BASE_URL } from '../config/api';
 import { fetchWithRetry } from '../utils/fetchWithRetry';
 
 // --- Helper: Robust JWT Parser ---
@@ -443,36 +443,9 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
   };
 };
 
-// 2. Fetch Energy Level
-export const fetchEnergyLevel = async (userId: number): Promise<number | null> => {
-  try {
-    const response = await fetchWithRetry(`${ML_API_BASE_URL}/api/mind-score?user_id=${userId}`, {
-      timeout: 10000, // 10 секунд для ML запросов
-      retries: 2,
-      cache: true,
-      cacheTTL: 60000 // Кэшируем на 1 минуту
-    });
-    
-    if (!response.ok) {
-      console.warn(`Mind score API returned ${response.status}`);
-      return null; // No data available
-    }
-    
-    const data = await response.json();
-    
-    // Если energy_level есть в ответе и это число, используем его
-    if (typeof data.energy_level === 'number') {
-      // Округляем до целого числа (как отображается в UI)
-      return Math.round(data.energy_level);
-    }
-    
-    // Если energy_level отсутствует (null) - нет данных
-    return null;
-    
-  } catch (error) {
-    console.warn("Could not fetch energy level:", error);
-    return null; // No data available on error
-  }
+// 2. Fetch Energy Level (ML отключён — всегда null)
+export const fetchEnergyLevel = async (_userId: number): Promise<number | null> => {
+  return null;
 };
 
 // Helper function to generate consistent hex color
@@ -1057,47 +1030,9 @@ export const saveThought = async (payload: SaveThoughtPayload): Promise<SaveThou
   }
 };
 
-// 8. Upload Voice Thought
-export const uploadVoiceThought = async (userId: number, audioBlob: Blob): Promise<UploadVoiceResponse> => {
-  try {
-    if (!audioBlob || audioBlob.size === 0) {
-      throw new Error('Audio blob is empty');
-    }
-
-    const blobType = (audioBlob.type || '').toLowerCase();
-    let fileName = 'voice.webm';
-    if (blobType.includes('mp4') || blobType.includes('m4a') || blobType.includes('aac')) {
-      fileName = 'voice.m4a';
-    } else if (blobType.includes('ogg')) {
-      fileName = 'voice.ogg';
-    } else if (blobType.includes('wav')) {
-      fileName = 'voice.wav';
-    }
-
-    const formData = new FormData();
-    formData.append('user_id', userId.toString());
-    formData.append('file', audioBlob, fileName);
-    
-    const response = await fetch(`${ML_API_BASE_URL}/api/upload-voice`, {
-      method: 'POST',
-      body: formData
-    });
-    
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to upload voice' }));
-      throw new Error(error.detail || 'Failed to upload voice');
-    }
-    
-    const data = await response.json();
-    return {
-      status: "success",
-      thought_id: data.thought_id,
-      transcribed_text: data.text || ''
-    };
-  } catch (error) {
-    console.error("API Error uploadVoiceThought:", error);
-    throw error;
-  }
+// 8. Upload Voice Thought (ML отключён — функция недоступна)
+export const uploadVoiceThought = async (_userId: number, _audioBlob: Blob): Promise<UploadVoiceResponse> => {
+  throw new Error('Голосовая запись недоступна (ML-сервис отключён).');
 };
 
 // Helper function to compress and resize image
